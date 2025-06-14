@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>顺风车座位信息</title>
+    
+    <!-- 缓存控制 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <title>顺风车座位信息 v2.1</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* 添加版本号到CSS URL */
+        /* 每次更新时修改版本号 */
+        /* 例如: background: url('icon.png?v=2.1'); */
+        
         * {
             margin: 0;
             padding: 0;
@@ -32,6 +42,12 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .header {
@@ -40,6 +56,18 @@
             padding: 25px 20px;
             text-align: center;
             position: relative;
+        }
+        
+        .version-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff9800;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
         }
         
         .header h1 {
@@ -68,6 +96,28 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             padding: 20px;
             margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .cache-warning {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff9800;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            display: none;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 152, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 152, 0, 0); }
         }
         
         .card-title {
@@ -220,12 +270,21 @@
             background: #e8eaed;
         }
         
+        .btn-orange {
+            background: #ff9800;
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+        }
+        
         .footer {
             text-align: center;
             padding: 20px;
             color: #5f6368;
             font-size: 14px;
             border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
         .wechat-guide {
@@ -236,7 +295,6 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            animation: pulse 2s infinite;
         }
         
         .wechat-icon {
@@ -259,12 +317,6 @@
         
         .guide-text strong {
             color: #1a73e8;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(26, 115, 232, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0); }
         }
         
         .date-control {
@@ -389,18 +441,25 @@
                 justify-content: flex-end;
                 margin-top: 8px;
             }
+            
+            select {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div class="version-badge">v2.1</div>
             <h1><i class="fas fa-car"></i> 顺风车座位信息</h1>
             <p>实时更新空座位情况，方便乘客拼车</p>
         </div>
         
         <div class="content">
             <div class="info-card">
+                <div class="cache-warning" id="cacheWarning">检测到旧版本！请刷新</div>
+                
                 <div class="card-title">
                     <i class="fas fa-calendar-day"></i> 行程信息
                 </div>
@@ -484,9 +543,15 @@
                 <i class="fab fa-weixin"></i> 分享到微信
             </button>
             
-            <button class="btn btn-secondary" id="updateBtn">
-                <i class="fas fa-sync-alt"></i> 更新信息
-            </button>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn btn-secondary" id="updateBtn" style="flex: 1;">
+                    <i class="fas fa-sync-alt"></i> 更新信息
+                </button>
+                
+                <button class="btn btn-orange" id="clearCacheBtn" style="flex: 1;">
+                    <i class="fas fa-broom"></i> 清除缓存
+                </button>
+            </div>
             
             <div class="wechat-guide">
                 <div class="wechat-icon">
@@ -499,11 +564,16 @@
         </div>
         
         <div class="footer">
-            <p>更新于 <span id="updateTime"></span> | 顺风车信息小程序</p>
+            <p>更新于 <span id="updateTime"></span></p>
+            <p>版本 <span id="versionDisplay">v2.1</span> | 检测到新版本时请点击"清除缓存"</p>
         </div>
     </div>
 
+    <!-- 添加版本号到JS文件 -->
     <script>
+        // 设置当前版本号（每次更新时修改此版本号）
+        const CURRENT_VERSION = "2.1";
+        
         document.addEventListener('DOMContentLoaded', function() {
             // 获取DOM元素
             const seatsContainer = document.getElementById('seatsContainer');
@@ -519,6 +589,19 @@
             const dateDisplay = document.getElementById('dateDisplay');
             const prevDateBtn = document.getElementById('prevDateBtn');
             const nextDateBtn = document.getElementById('nextDateBtn');
+            const clearCacheBtn = document.getElementById('clearCacheBtn');
+            const cacheWarning = document.getElementById('cacheWarning');
+            const versionDisplay = document.getElementById('versionDisplay');
+            
+            // 显示当前版本
+            versionDisplay.textContent = "v" + CURRENT_VERSION;
+            
+            // 检查是否旧版本
+            const savedVersion = localStorage.getItem('app_version');
+            if (savedVersion && savedVersion !== CURRENT_VERSION) {
+                cacheWarning.style.display = 'block';
+            }
+            localStorage.setItem('app_version', CURRENT_VERSION);
             
             // 初始化当前日期
             let currentDate = new Date();
@@ -650,6 +733,18 @@
                 updateDateDisplay();
             });
             
+            // 清除缓存按钮
+            clearCacheBtn.addEventListener('click', function() {
+                // 清除localStorage
+                localStorage.clear();
+                
+                // 清除sessionStorage
+                sessionStorage.clear();
+                
+                // 强制刷新页面（带随机参数避免缓存）
+                window.location.href = window.location.href.split('?')[0] + '?nocache=' + new Date().getTime();
+            });
+            
             // 输入验证
             totalSeatsInput.addEventListener('change', function() {
                 let value = parseInt(this.value);
@@ -720,8 +815,9 @@
                 
                 try {
                     document.execCommand('copy');
+                    showToast('已复制到剪贴板！');
                 } catch (err) {
-                    console.error('复制失败:', err);
+                    showToast('复制失败，请手动复制');
                 }
                 
                 document.body.removeChild(textarea);
