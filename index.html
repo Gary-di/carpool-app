@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>顺风车座位信息</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            position: relative;
+            margin: 20px;
+        }
+        
+        .header {
+            background: #1a73e8;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 25px 20px;
+        }
+        
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .icon {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+        
+        .seats-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .seat {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .available {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .occupied {
+            background: #f5f5f5;
+            color: #aaa;
+        }
+        
+        .driver {
+            background: #FF9800;
+            color: white;
+        }
+        
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .time-label {
+            font-weight: 500;
+            color: #5f6368;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .time-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a73e8;
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .control-label {
+            font-size: 16px;
+            color: #5f6368;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input, select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            -webkit-appearance: none;
+        }
+        
+        input {
+            width: 80px;
+            text-align: center;
+        }
+        
+        select {
+            width: 120px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 35px;
+        }
+        
+        .btn {
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+            box-shadow: 0 4px 10px rgba(26, 115, 232, 0.3);
+        }
+        
+        .btn-primary:active {
+            background: #0d62da;
+            transform: translateY(2px);
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #1a73e8;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:active {
+            background: #e8eaed;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #5f6368;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+        
+        .wechat-guide {
+            background: #f0f7ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        .wechat-icon {
+            width: 50px;
+            height: 50px;
+            background: #09bb07;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .guide-text {
+            font-size: 14px;
+            color: #5f6368;
+        }
+        
+        .guide-text strong {
+            color: #1a73e8;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(26, 115, 232, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0); }
+        }
+        
+        @media (max-width: 480px) {
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .content {
+                padding: 20px 15px;
+            }
+            
+            .seat {
+                width: 50px;
+                height: 50px;
+                font-size: 18px;
+            }
+            
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+        
+        .deploy-guide {
+            background: #fff8e6;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #5f6368;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .deploy-guide h3 {
+            color: #ff9800;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M18.92,6.01C18.72,5.42 18.16,5 17.5,5H6.5C5.84,5 5.29,5.42 5.08,6.01L3,12V20C3,20.55 3.45,21 4,21H5C5.55,21 6,20.55 6,20V19H18V20C18,20.55 18.45,21 19,21H20C20.55,21 21,20.55 21,20V12L18.92,6.01ZM6.5,16C5.67,16 5,15.33 5,14.5C5,13.67 5.67,13 6.5,13C7.33,13 8,13.67 8,14.5C8,15.33 7.33,16 6.5,16ZM17.5,16C16.67,16 16,15.33 16,14.5C16,13.67 16.67,13 17.5,13C18.33,13 19,13.67 19,14.5C19,15.33 18.33,16 17.5,16ZM5,11L6.5,6.5H17.5L19,11H5Z"/>
+                </svg>
+                顺风车座位信息
+            </h1>
+            <p>实时更新空座位情况，方便乘客拼车</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-card">
+                <div class="card-title">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M12,5.5A3.5,3.5 0 0,1 15.5,9A3.5,3.5 0 0,1 12,12.5A3.5,3.5 0 0,1 8.5,9A3.5,3.5 0 0,1 12,5.5M5,8C5.56,8 6.08,8.15 6.53,8.42C6.38,9.85 6.8,11.27 7.66,12.38C7.16,13.34 6.16,14 5,14A3,3 0 0,1 2,11A3,3 0 0,1 5,8M19,8A3,3 0 0,1 22,11A3,3 0 0,1 19,14C17.84,14 16.84,13.34 16.34,12.38C17.2,11.27 17.62,9.85 17.47,8.42C17.92,8.15 18.44,8 19,8M5.5,18.25C5.5,16.18 8.41,14.5 12,14.5C15.59,14.5 18.5,16.18 18.5,18.25V20H5.5V18.25M0,20V18.5C0,17.11 1.89,15.94 4.45,15.6C3.86,16.28 3.5,17.22 3.5,18.25V20H0M24,20H20.5V18.25C20.5,17.22 20.14,16.28 19.55,15.6C22.11,15.94 24,17.11 24,18.5V20Z"/>
+                    </svg>
+                    座位状态
+                </div>
+                
+                <div class="seats-container" id="seatsContainer">
+                    <!-- 座位会通过JS动态生成 -->
+                </div>
+                
+                <div class="time-info">
+                    <div class="time-label">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,20A7,7 0 0,1 5,13A7,7 0 0,1 12,6A7,7 0 0,1 19,13A7,7 0 0,1 12,20M12,4A9,9 0 0,0 3,13A9,9 0 0,0 12,22A9,9 0 0,0 21,13A9,9 0 0,0 12,4M12.5,8H11V14L15.75,16.85L16.5,15.62L12.5,13.25V8M7.88,3.39L6.6,1.86L2,5.71L3.29,7.24L7.88,3.39M22,5.72L17.4,1.86L16.11,3.39L20.71,7.25L22,5.72Z"/>
+                        </svg>
+                        计划出发时间
+                    </div>
+                    <div class="time-value" id="departureTime">08:30</div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <div class="control-label">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"/>
+                        </svg>
+                        总座位数
+                    </div>
+                    <div class="control-input">
+                        <input type="number" id="totalSeats" min="2" max="9" value="5">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M15,14C12.33,14 7,15.33 7,18V20H23V18C23,15.33 17.67,14 15,14M6,10V7H4V10H1V12H4V15H6V12H9V10M15,12A4,4 0 0,0 19,8A4,4 0 0,0 15,4A4,4 0 0,0 11,8A4,4 0 0,0 15,12Z"/>
+                        </svg>
+                        空座位数
+                    </div>
+                    <div class="control-input">
+                        <input type="number" id="availableSeats" min="0" max="8" value="2">
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <div class="control-label">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"/>
+                        </svg>
+                        出发时间
+                    </div>
+                    <div class="control-input">
+                        <select id="timeSelect">
+                            <option value="07:30">07:30</option>
+                            <option value="08:00" selected>08:00</option>
+                            <option value="08:30">08:30</option>
+                            <option value="09:00">09:00</option>
+                            <option value="17:30">17:30</option>
+                            <option value="18:00">18:00</option>
+                            <option value="18:30">18:30</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="shareBtn">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M16.5,12C15,12 13.8,13.2 13.8,14.7C13.8,16.2 15,17.5 16.5,17.5C18,17.5 19.2,16.3 19.2,14.8C19.2,13.3 18,12 16.5,12M10.5,9.5C8.9,9.5 7.5,10.9 7.5,12.5C7.5,14.1 8.9,15.5 10.5,15.5C12.1,15.5 13.5,14.1 13.5,12.5C13.5,10.9 12.1,9.5 10.5,9.5M7.5,14.7C6,14.7 4.8,15.9 4.8,17.4C4.8,18.9 6,20 7.5,20C9,20 10.2,18.9 10.2,17.4C10.2,15.9 9,14.7 7.5,14.7M16.5,10.5C19,10.5 21,12.3 21,14.8C21,17.3 19,19 16.5,19C14,19 12,17.3 12,14.8C12,13.77 12.4,12.83 13.1,12.1L10.2,10.1C9.5,10.8 9,11.6 9,12.5C9,13.8 9.7,14.9 10.8,15.5L10.2,17.4C8.8,16.5 8,14.9 8,13.1C8,11.5 8.6,10.1 9.7,9.1L7.9,7.1C6.8,8.1 6,9.5 6,11.1C6,12.9 6.8,14.5 8.2,15.4L7.6,17.3C6.5,16.7 5.8,15.6 5.8,14.3C5.8,12.8 6.7,11.5 8.1,10.7L10.9,12.7C11.6,12.1 12.5,11.8 13.5,11.8L14.7,9.7C13.8,9.9 13,10.5 12.4,11.3L15.4,13.3C16.2,12.5 17.3,12 18.5,12C18.6,12 18.8,12 18.9,12L16.9,9.9C16.8,10 16.7,10 16.5,10C16.4,10 16.4,10 16.3,10L14.3,7.9C15.4,7.3 16.8,7 18.5,7H21L20.1,10L18.5,7C17.3,7 16.3,7.5 15.6,8.1L17.6,10.2C17.4,10.1 17.2,10.1 17,10.1C16.8,10.1 16.6,10.1 16.5,10.1C16.5,10.3 16.5,10.4 16.5,10.5Z"/>
+                </svg>
+                分享到微信
+            </button>
+            
+            <button class="btn btn-secondary" id="updateBtn">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+                </svg>
+                更新信息
+            </button>
+            
+            <div class="wechat-guide">
+                <div class="wechat-icon">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M9.5,4C5.36,4 2,6.69 2,10C2,11.89 3.08,13.56 4.78,14.66L4,17L6.5,15.5C7.39,15.81 8.37,16 9.41,16C9.15,15.37 9,14.7 9,14C9,10.69 12.13,8 16,8C16.19,8 16.38,8 16.56,8.03C15.54,5.69 12.78,4 9.5,4M6.5,6.5A1,1 0 0,1 7.5,7.5A1,1 0 0,1 6.5,8.5A1,1 0 0,1 5.5,7.5A1,1 0 0,1 6.5,6.5M11.5,6.5A1,1 0 0,1 12.5,7.5A1,1 0 0,1 11.5,8.5A1,1 0 0,1 10.5,7.5A1,1 0 0,1 11.5,6.5M16,9C12.69,9 10,11.24 10,14C10,16.76 12.69,19 16,19C16.67,19 17.31,18.92 17.91,18.75L20,20L19.38,18.13C20.95,17.22 22,15.71 22,14C22,11.24 19.31,9 16,9M14,11.5A1,1 0 0,1 15,12.5A1,1 0 0,1 14,13.5A1,1 0 0,1 13,12.5A1,1 0 0,1 14,11.5M18,11.5A1,1 0 0,1 19,12.5A1,1 0 0,1 18,13.5A1,1 0 0,1 17,12.5A1,1 0 0,1 18,11.5Z"/>
+                    </svg>
+                </div>
+                <div class="guide-text">
+                    <strong>使用提示：</strong> 点击右上角 <svg class="icon" viewBox="0 0 24 24" style="display:inline; width:16px; height:16px; vertical-align:middle;">
+                        <path fill="currentColor" d="M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8A3,3 0 0,0 21,5A3,3 0 0,0 18,2A3,3 0 0,0 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9A3,3 0 0,0 3,12A3,3 0 0,0 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19A2.92,2.92 0 0,0 18,16.08Z"/>
+                    </svg> 分享按钮，选择"发送给朋友"或"分享到朋友圈"，将您的顺风车信息分享给乘客
+                </div>
+            </div>
+            
+            <div class="deploy-guide">
+                <h3>
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M11,4H6V20H11V18H13V20H18V11H13V13H11V4M7,13H9V18H7V13M15,13H17V18H15V13Z"/>
+                    </svg>
+                    部署指南
+                </h3>
+                <p>如果此页面显示为代码而非界面：</p>
+                <ol style="padding-left: 20px; margin-top: 8px;">
+                    <li>请将此文件保存为<strong>index.html</strong></li>
+                    <li>上传到GitHub Pages、Vercel或Netlify等托管平台</li>
+                    <li>确保通过<strong>https://</strong>访问</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>更新于 <span id="updateTime"></span> | 顺风车信息小程序</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取DOM元素
+            const seatsContainer = document.getElementById('seatsContainer');
+            const totalSeatsInput = document.getElementById('totalSeats');
+            const availableSeatsInput = document.getElementById('availableSeats');
+            const timeSelect = document.getElementById('timeSelect');
+            const departureTime = document.getElementById('departureTime');
+            const updateBtn = document.getElementById('updateBtn');
+            const shareBtn = document.getElementById('shareBtn');
+            const updateTimeEl = document.getElementById('updateTime');
+            
+            // 初始化更新时间
+            updateTime();
+            
+            // 生成座位视图
+            function renderSeats() {
+                const totalSeats = parseInt(totalSeatsInput.value);
+                const availableSeats = parseInt(availableSeatsInput.value);
+                
+                // 清空座位容器
+                seatsContainer.innerHTML = '';
+                
+                // 添加司机座位
+                const driverSeat = document.createElement('div');
+                driverSeat.className = 'seat driver';
+                driverSeat.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12,3C14.21,3 16,4.79 16,7C16,9.21 14.21,11 12,11C9.79,11 8,9.21 8,7C8,4.79 9.79,3 12,3M16,13.54C16,14.6 15.72,17.07 13.81,19.83L13,15L13.94,13.12C13.32,13.05 12.67,13 12,13C11.33,13 10.68,13.05 10.06,13.12L11,15L10.19,19.83C8.28,17.07 8,14.6 8,13.54C5.61,14.24 4,15.5 4,17V21H20V17C20,15.5 18.4,14.24 16,13.54Z"/></svg>';
+                seatsContainer.appendChild(driverSeat);
+                
+                // 添加乘客座位
+                for (let i = 1; i <= totalSeats; i++) {
+                    const seat = document.createElement('div');
+                    seat.className = i <= availableSeats ? 'seat available' : 'seat occupied';
+                    
+                    if (i <= availableSeats) {
+                        seat.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/></svg>';
+                    } else {
+                        seat.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M16,17V19H2V17S2,13 9,13 16,17 16,17M12,2A5,5 0 0,1 17,7A5,5 0 0,1 12,12A5,5 0 0,1 7,7A5,5 0 0,1 12,2M15,9.5V12H9V9.5H12V7H8V9.5H6V4.5A1.5,1.5 0 0,1 7.5,3A1.5,1.5 0 0,1 9,4.5V6H12A1.5,1.5 0 0,1 13.5,7.5V9.5H15Z"/></svg>';
+                    }
+                    
+                    seatsContainer.appendChild(seat);
+                }
+            }
+            
+            // 更新时间显示
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('zh-CN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                updateTimeEl.textContent = timeString;
+            }
+            
+            // 更新出发时间
+            function updateDepartureTime() {
+                departureTime.textContent = timeSelect.value;
+            }
+            
+            // 更新按钮事件
+            updateBtn.addEventListener('click', function() {
+                renderSeats();
+                updateDepartureTime();
+                updateTime();
+                
+                // 显示更新成功的提示
+                showToast('座位信息已更新！');
+            });
+            
+            // 分享按钮事件
+            shareBtn.addEventListener('click', function() {
+                const totalSeats = totalSeatsInput.value;
+                const availableSeats = availableSeatsInput.value;
+                const time = timeSelect.value;
+                
+                // 这里模拟微信分享功能
+                showToast('已生成分享链接！请点击右上角分享');
+                
+                // 显示微信分享引导
+                document.querySelector('.wechat-guide').classList.add('highlight');
+                setTimeout(() => {
+                    document.querySelector('.wechat-guide').classList.remove('highlight');
+                }, 3000);
+            });
+            
+            // 输入验证
+            totalSeatsInput.addEventListener('change', function() {
+                let value = parseInt(this.value);
+                if (value < 2) value = 2;
+                if (value > 9) value = 9;
+                this.value = value;
+                
+                // 确保可用座位不超过总座位
+                if (parseInt(availableSeatsInput.value) > value) {
+                    availableSeatsInput.value = value;
+                }
+                
+                renderSeats();
+            });
+            
+            availableSeatsInput.addEventListener('change', function() {
+                const total = parseInt(totalSeatsInput.value);
+                let value = parseInt(this.value);
+                if (value < 0) value = 0;
+                if (value > total) value = total;
+                this.value = value;
+                
+                renderSeats();
+            });
+            
+            // 显示Toast提示
+            function showToast(message) {
+                const toast = document.createElement('div');
+                toast.textContent = message;
+                toast.style.position = 'fixed';
+                toast.style.bottom = '20px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                toast.style.color = 'white';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '20px';
+                toast.style.zIndex = '1000';
+                toast.style.transition = 'opacity 0.3s';
+                toast.style.opacity = '0';
+                toast.style.fontSize = '16px';
+                toast.style.whiteSpace = 'nowrap';
+                
+                document.body.appendChild(toast);
+                
+                // 显示动画
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                }, 10);
+                
+                // 3秒后消失
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 300);
+                }, 3000);
+            }
+            
+            // 初始渲染
+            renderSeats();
+            updateDepartureTime();
+        });
+    </script>
+</body>
+</html>
